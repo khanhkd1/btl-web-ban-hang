@@ -6,8 +6,7 @@ Base = declarative_base()
 
 
 def connect_database():
-    engine = create_engine('mysql://be93671b73b5b6:53661869@us-cdbr-east-03.cleardb.com/heroku_760fadfb6c852e4'
-                           '?charset=utf8mb4')
+    engine = create_engine('mysql://root:vjpvjp123A01@47.254.253.64/lap_trinh_web_api?charset=utf8mb4')
     session = sessionmaker(bind=engine)
     return session
 
