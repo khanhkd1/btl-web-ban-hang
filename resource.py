@@ -14,6 +14,6 @@ api.add_resource(CameraWithoutId, '/camera', methods=['GET'])
 
 if __name__ == '__main__':
     try:
-        app.run(debug=True)
+        app.run(host='0.0.0.0', debug=True)
     except Exception as exp:
         print(exp)
