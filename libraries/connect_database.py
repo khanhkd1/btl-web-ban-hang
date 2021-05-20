@@ -1,5 +1,6 @@
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 Base = declarative_base()
@@ -25,3 +26,22 @@ class Camera(Base):
     visibility = Column(String, nullable=False)
     power = Column(String)
     other = Column(String)
+
+
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    username = Column(String, nullable=False)
+    password = Column(String(255), nullable=False)
+    is_admin = Column(Boolean)
+
+    def __init__(self, username, password, is_admin):
+        self.username = username
+        self.set_password(password)
+        self.is_admin = is_admin
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
