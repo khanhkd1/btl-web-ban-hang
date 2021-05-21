@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
-from modules.camera.camera import CameraWithoutId, CameraBrandWithoutId, CameraWithBrandId
-from modules.laptop.laptop import LaptopWithoutId, LaptopBrandWithoutId, LaptopWithBrandId
+from modules.camera.camera import CameraWithoutId, CameraBrandWithoutId, CameraWithBrandId, CameraWithCameraId
+from modules.laptop.laptop import LaptopWithoutId, LaptopBrandWithoutId, LaptopWithBrandId, LaptopWithLaptopId
 from modules.user.user import UserApi
 from libraries.connect_database import connect_database, Camera, User, Laptop
 from flask_admin import Admin
@@ -24,11 +24,15 @@ admin.add_view(ModelView(User, session()))
 
 api = Api(app)
 
+# camera apis
 api.add_resource(CameraWithoutId, '/camera', methods=['GET'])
+api.add_resource(CameraWithCameraId, '/camera/<int:camera_id>', methods=['GET'])
 api.add_resource(CameraBrandWithoutId, '/camera/brand', methods=['GET'])
 api.add_resource(CameraWithBrandId, '/camera/brand/<int:brand_id>', methods=['GET'])
 
+# laptop apis
 api.add_resource(LaptopWithoutId, '/laptop', methods=['GET'])
+api.add_resource(LaptopWithLaptopId, '/laptop/<int:laptop_id>', methods=['GET'])
 api.add_resource(LaptopBrandWithoutId, '/laptop/brand', methods=['GET'])
 api.add_resource(LaptopWithBrandId, '/laptop/brand/<int:brand_id>', methods=['GET'])
 

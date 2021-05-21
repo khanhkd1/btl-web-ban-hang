@@ -106,3 +106,31 @@ class LaptopWithBrandId(Resource):
         finally:
             session_tmp.close()
 
+
+class LaptopWithLaptopId(Resource):
+    def get(self, laptop_id):
+        session_tmp = session()
+        try:
+            query = session_tmp.query(Laptop).filter_by(id=laptop_id)
+            records = query.first()
+            records = process_data(records, session_tmp, LaptopBrand, False)
+            return make_response(
+                jsonify(
+                    {
+                        "message": "done",
+                        "data": records
+                    }
+                ), 200
+            )
+        except exc as e:
+            session_tmp.rollback()
+            return make_response(
+                jsonify(
+                    {
+                        "message": "fail",
+                        "data": {}
+                    }
+                ), 500
+            )
+        finally:
+            session_tmp.close()
