@@ -34,6 +34,28 @@ class Camera(Base):
     warranty = Column(String, nullable=False)
 
 
+class LaptopBrand(Base):
+    __tablename__ = 'laptop_brand'
+    id = Column(Integer, primary_key=True)
+    brand = Column(String, nullable=False, unique=True)
+    brands = relationship('Laptop', backref='laptop_brand')
+
+    def __repr__(self):
+        return self.brand
+
+
+class Laptop(Base):
+    __tablename__ = 'laptop'
+    id = Column(Integer, primary_key=True)
+    brand = Column(Integer, ForeignKey('laptop_brand.id'))
+    productName = Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    images = Column(String)
+    productSummary = Column(String, nullable=False)
+    warranty = Column(String, nullable=False)
+
+
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
