@@ -51,3 +51,12 @@ def standardized_data(obj, del_param=None, param=None):
         return data
 
     return obj
+
+
+def process_data(data, session_tmp, obj, is_brand):
+    if is_brand:
+        return standardized_data(data)
+    data = standardized_data(data)
+    data['images'] = data['images'].split(',')
+    data['brand'] = session_tmp.query(obj).filter_by(id=data['brand']).first().brand
+    return data
