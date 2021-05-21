@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
-from modules.camera.camera import CameraWithoutId
-from modules.laptop.laptop import LaptopWithoutId
+from modules.camera.camera import CameraWithoutId, CameraBrandWithoutId
+from modules.laptop.laptop import LaptopWithoutId, LaptopBrandWithoutId
 from modules.user.user import UserApi
 from libraries.connect_database import connect_database, Camera, User, Laptop
 from flask_admin import Admin
@@ -20,7 +20,11 @@ admin.add_view(ModelView(User, session()))
 
 api = Api(app)
 api.add_resource(CameraWithoutId, '/camera', methods=['GET'])
+api.add_resource(CameraBrandWithoutId, '/camera_brand', methods=['GET'])
+
 api.add_resource(LaptopWithoutId, '/laptop', methods=['GET'])
+api.add_resource(LaptopBrandWithoutId, '/laptop_brand', methods=['GET'])
+
 api.add_resource(UserApi, '/user', methods=['POST'])
 
 if __name__ == '__main__':
