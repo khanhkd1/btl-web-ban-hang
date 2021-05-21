@@ -1,5 +1,5 @@
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -12,20 +12,26 @@ def connect_database():
     return session
 
 
+class CameraBrand(Base):
+    __tablename__ = 'camera_brand'
+    id = Column(Integer, primary_key=True)
+    brand = Column(String, nullable=False, unique=True)
+    brands = relationship('Camera', backref='camera_brand')
+
+    def __repr__(self):
+        return self.brand
+
+
 class Camera(Base):
     __tablename__ = 'camera'
     id = Column(Integer, primary_key=True)
-    brand = Column(String, nullable=False)
-    model = Column(String, nullable=False)
-    amount = Column(Integer, nullable=False)
+    brand = Column(Integer, ForeignKey('camera_brand.id'))
+    productName = Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
-    resolution = Column(String, nullable=False)
-    location = Column(String, nullable=False)
     images = Column(String)
-    type = Column(String, nullable=False)
-    visibility = Column(String, nullable=False)
-    power = Column(String)
-    other = Column(String)
+    productSummary = Column(String, nullable=False)
+    warranty = Column(String, nullable=False)
 
 
 class User(Base):

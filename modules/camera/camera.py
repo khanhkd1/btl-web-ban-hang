@@ -25,6 +25,7 @@ class CameraWithoutId(Resource):
             records = query.order_by(order).offset(offset).limit(limit).all()
             for i in range(len(records)):
                 records[i] = standardized_data(records[i])
+                records[i]['images'] = records[i]['images'].split(',')
             return records
         except exc as e:
             session_tmp.rollback()
