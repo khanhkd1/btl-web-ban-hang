@@ -18,9 +18,12 @@ class UserApi(Resource):
                 return make_response(
                     jsonify(
                         {
-                            "message": "login done",
-                            "username": user.username,
-                            "is_admin": user.is_admin
+                            "message": "done",
+                            "data": {
+                                "id": user.id,
+                                "username": user.username,
+                                "is_admin": user.is_admin
+                            }
                         }
                     ), 200
                 )
@@ -28,7 +31,8 @@ class UserApi(Resource):
                 return make_response(
                     jsonify(
                         {
-                            "message": "login fail"
+                            "message": "fail",
+                            "data": {}
                         }
                     ), 401
                 )
@@ -46,7 +50,8 @@ class UserApi(Resource):
                 return make_response(
                     jsonify(
                         {
-                            "message": "success"
+                            "message": "done",
+                            "data": {}
                         }
                     ), 200
                 )
@@ -54,7 +59,8 @@ class UserApi(Resource):
                 return make_response(
                     jsonify(
                         {
-                            "message": "username is exist"
+                            "message": "fail",
+                            "data": {}
                         }
                     ), 401
                 )
