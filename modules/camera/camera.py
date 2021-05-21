@@ -77,3 +77,33 @@ class CameraBrandWithoutId(Resource):
             )
         finally:
             session_tmp.close()
+
+
+class CameraWithBrandId(Resource):
+    def get(self, brand_id):
+        session_tmp = session()
+        try:
+            query = session_tmp.query(Camera).filter_by(brand=brand_id)
+            records = query.all()
+            for i in range(len(records)):
+                records[i] = standardized_data(records[i])
+            return make_response(
+                jsonify(
+                    {
+                        "message": "done",
+                        "data": records
+                    }
+                ), 200
+            )
+        except exc as e:
+            session_tmp.rollback()
+            return make_response(
+                jsonify(
+                    {
+                        "message": "fail",
+                        "data": []
+                    }
+                ), 500
+            )
+        finally:
+            session_tmp.close()
