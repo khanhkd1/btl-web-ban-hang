@@ -18,13 +18,19 @@ class User(Base):
 	username = Column(String, nullable=False)
 	password = Column(String(255), nullable=False)
 	is_admin = Column(Boolean)
+	full_name = Column(String, nullable=False)
+	phone = Column(String(10), nullable=False)
+	email = Column(String, nullable=False)
 
 	product = relationship('Product', secondary='cart')
 
-	def __init__(self, username, password, is_admin):
+	def __init__(self, username, password, is_admin, full_name, phone, email):
 		self.username = username
 		self.set_password(password)
 		self.is_admin = is_admin
+		self.full_name = full_name
+		self.phone = phone
+		self.email = email
 
 	def set_password(self, password):
 		self.password = generate_password_hash(password)
