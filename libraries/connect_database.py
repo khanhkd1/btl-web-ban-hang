@@ -75,4 +75,5 @@ class Cart(Base):
 	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
 	product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
 	amount = Column(Integer)
+	total_price = Column(Float)
 

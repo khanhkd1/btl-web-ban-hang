@@ -39,3 +39,111 @@ class CartWithUserId(Resource):
 			)
 		finally:
 			session_tmp.close()
+
+
+	def post(self, user_id):
+		data = request.get_json()
+		session_tmp = session()
+
+		if not session_tmp.query(Cart).filter_by(user_id=user_id, product_id=data['product_id']).first():
+			cart = Cart(
+				user_id=user_id,
+				product_id=data['product_id'],
+				amount=data['amount'],
+				total_price=data['amount'] * session_tmp.query(Product).filter_by(id=data['product_id']).first().price
+			)
+			session_tmp.add(cart)
+		else:
+			exist_cart = session_tmp.query(Cart).filter_by(user_id=user_id, product_id=data['product_id']).first()
+			session_tmp.query(Cart).filter_by(user_id=user_id, product_id=data['product_id']).update(
+				{
+					'amount': data['amount'] + exist_cart.amount,
+					'total_price': (data['amount'] + exist_cart.amount) * session_tmp.query(Product).filter_by(id=data['product_id']).first().price
+				}
+			)
+		try:
+			session_tmp.commit()
+
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": {}
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": []
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()
+
+
+	def put(self, user_id):
+		data = request.get_json()
+		session_tmp = session()
+		session_tmp.query(Cart).filter_by(user_id=user_id, product_id=data['product_id']).update(
+			{
+				'amount': data['amount'],
+				'total_price': data['amount'] * session_tmp.query(Product).filter_by(id=data['product_id']).first().price
+			}
+		)
+		try:
+			session_tmp.commit()
+
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": {}
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": []
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()
+
+
+	def delete(self, user_id):
+		data = request.get_json()
+		session_tmp = session()
+		session_tmp.query(Cart).filter_by(user_id=user_id, product_id=data['product_id']).delete()
+		try:
+			session_tmp.commit()
+
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": {}
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": []
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()

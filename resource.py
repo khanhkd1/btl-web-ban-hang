@@ -29,7 +29,7 @@ api.add_resource(Home, '/home', methods=['GET'])
 api.add_resource(ProductWithBrandId, '/brand/<int:brand_id>', methods=['GET'])
 
 # cart apis
-api.add_resource(CartWithUserId, '/cart/<int:user_id>')
+api.add_resource(CartWithUserId, '/cart/<int:user_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 
 # user apis
 api.add_resource(UserWithoutUserId, '/user', methods=['POST'])
