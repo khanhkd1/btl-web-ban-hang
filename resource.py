@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from modules.product.product_api import Home, ProductWithBrandId
+from modules.cart_and_payment.cart_and_payments_api import CartWithUserId
 from modules.user.user import UserApi
 from libraries.connect_database import connect_database, User, Product, Brand
 from flask_admin import Admin
@@ -26,6 +27,9 @@ api = Api(app)
 # product apis
 api.add_resource(Home, '/home', methods=['GET'])
 api.add_resource(ProductWithBrandId, '/brand/<int:brand_id>', methods=['GET'])
+
+# cart
+api.add_resource(CartWithUserId, '/cart/<int:user_id>')
 
 api.add_resource(UserApi, '/user', methods=['POST'])
 

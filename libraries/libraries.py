@@ -121,3 +121,15 @@ def get_products(session, parameters, product_obj, brand_obj, order, offset, lim
     for i in range(len(products)):
         products[i] = process_data(products[i], session, brand_obj, False)
     return products, total_count
+
+
+def get_carts(session, parameters, cart_obj, product_obj, order, offset, limit, user_id):
+    carts = session.query(cart_obj).filter_by(user_id=user_id)
+    carts = check_search(carts, parameters, cart_obj)
+    total_count = carts.count()
+    carts = carts.order_by(order).offset(offset).limit(limit).all()
+
+    for i in range(len(carts)):
+        carts[i] = standardized_data(carts[i])
+        carts[i]['product'] = session.query(product_obj).filter_by(id=carts[i]['product_id']).first().productName
+    return carts, total_count
