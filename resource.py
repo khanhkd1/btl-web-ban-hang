@@ -1,9 +1,8 @@
 from flask import Flask
 from flask_restful import Api
-from modules.camera.camera import CameraWithoutId, CameraBrandWithoutId, CameraWithBrandId, CameraWithCameraId
-from modules.laptop.laptop import LaptopWithoutId, LaptopBrandWithoutId, LaptopWithBrandId, LaptopWithLaptopId
+from modules.product.product_api import AllProduct
 from modules.user.user import UserApi
-from libraries.connect_database import connect_database, Camera, User, Laptop
+from libraries.connect_database import connect_database, User, Product
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_cors import CORS
@@ -18,23 +17,13 @@ app.config['SECRET_KEY'] = 'khanhkd'
 
 admin = Admin(app)
 
-admin.add_view(ModelView(Camera, session()))
-admin.add_view(ModelView(Laptop, session()))
 admin.add_view(ModelView(User, session()))
+admin.add_view(ModelView(Product, session()))
 
 api = Api(app)
 
-# camera apis
-api.add_resource(CameraWithoutId, '/camera', methods=['GET'])
-api.add_resource(CameraWithCameraId, '/camera/<int:camera_id>', methods=['GET'])
-api.add_resource(CameraBrandWithoutId, '/camera/brand', methods=['GET'])
-api.add_resource(CameraWithBrandId, '/camera/brand/<int:brand_id>', methods=['GET'])
-
-# laptop apis
-api.add_resource(LaptopWithoutId, '/laptop', methods=['GET'])
-api.add_resource(LaptopWithLaptopId, '/laptop/<int:laptop_id>', methods=['GET'])
-api.add_resource(LaptopBrandWithoutId, '/laptop/brand', methods=['GET'])
-api.add_resource(LaptopWithBrandId, '/laptop/brand/<int:brand_id>', methods=['GET'])
+# product apis
+api.add_resource(AllProduct, '/home', methods=['GET'])
 
 api.add_resource(UserApi, '/user', methods=['POST'])
 

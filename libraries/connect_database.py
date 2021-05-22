@@ -31,42 +31,23 @@ class User(Base):
         return check_password_hash(self.password, password)
 
 
-class CameraBrand(Base):
-    __tablename__ = 'camera_brand'
+class Brand(Base):
+    __tablename__ = 'brand'
     id = Column(Integer, primary_key=True)
-    brand = Column(String, nullable=False, unique=True)
-    brands = relationship('Camera', backref='camera_brand')
+    brand = Column(String, nullable=False)
+    is_laptop = Column(Boolean)
+    is_camera = Column(Boolean)
+
+    product_brand = relationship('Product', backref='brand')
 
     def __repr__(self):
         return self.brand
 
 
-class Camera(Base):
-    __tablename__ = 'camera'
+class Product(Base):
+    __tablename__ = 'product'
     id = Column(Integer, primary_key=True)
-    brand = Column(Integer, ForeignKey('camera_brand.id'))
-    productName = Column(String, nullable=False)
-    quantity = Column(Integer, nullable=False)
-    price = Column(Float, nullable=False)
-    images = Column(String)
-    productSummary = Column(String, nullable=False)
-    warranty = Column(String, nullable=False)
-
-
-class LaptopBrand(Base):
-    __tablename__ = 'laptop_brand'
-    id = Column(Integer, primary_key=True)
-    brand = Column(String, nullable=False, unique=True)
-    brands = relationship('Laptop', backref='laptop_brand')
-
-    def __repr__(self):
-        return self.brand
-
-
-class Laptop(Base):
-    __tablename__ = 'laptop'
-    id = Column(Integer, primary_key=True)
-    brand = Column(Integer, ForeignKey('laptop_brand.id'))
+    brand_id = Column(Integer, ForeignKey('brand.id'))
     productName = Column(String, nullable=False)
     quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
