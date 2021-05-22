@@ -1,3 +1,6 @@
+from sqlalchemy import or_
+
+
 def get_default(parameters, metadata, obj):
     if ('orderBy' or 'orderType') not in parameters:
         order = obj.id.asc()
@@ -74,9 +77,47 @@ def get_data_with_page(data, page_limit, current_page, total):
         result['paging']['records_in_page'] = page_limit
     else:
         result['paging']['records_in_page'] = int(result['paging']['total_count']) - (
-                    int(current_page) - 1) * page_limit
+                int(current_page) - 1) * page_limit
 
     result['paging']['total_page'] = total_page
     result['paging']['current_page'] = int(current_page)
 
     return result
+
+
+def check_search(query, parameters, obj):
+    if "search" in parameters and parameters['search'] != "":
+        search_values = parameters['search'].split(",")
+        for search_value in search_values:
+            query = query.filter(or_(key.like('%' + search_value + '%') for key in obj.__table__.columns))
+    return query
+
+
+def get_brands(session, brand_obj):
+    brands = session.query(brand_obj)
+    brands = brands.all()
+
+    camera_brands = []
+    laptop_brands = []
+
+    for i in range(len(brands)):
+        brands[i] = process_data(brands[i], None, None, True)
+        if brands[i]['is_laptop']:
+            laptop_brands.append(brands[i])
+        else:
+            camera_brands.append(brands[i])
+    return camera_brands, laptop_brands
+
+
+def get_products(session, parameters, product_obj, brand_obj, order, offset, limit, brand_id=False):
+    if not brand_id:
+        products = session.query(product_obj)
+    else:
+        products = session.query(product_obj).filter_by(brand_id=brand_id)
+    products = check_search(products, parameters, product_obj)
+    total_count = products.count()
+    products = products.order_by(order).offset(offset).limit(limit).all()
+
+    for i in range(len(products)):
+        products[i] = process_data(products[i], session, brand_obj, False)
+    return products, total_count

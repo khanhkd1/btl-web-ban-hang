@@ -54,3 +54,6 @@ class Product(Base):
     images = Column(String)
     productSummary = Column(String, nullable=False)
     warranty = Column(String, nullable=False)
+
+    def __repr__(self):
+        return self.productName
