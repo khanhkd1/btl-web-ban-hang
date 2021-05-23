@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
-from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, ForeignKey, DateTime
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -91,3 +91,16 @@ class BankInfoOfUser(Base):
 	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
 	bank_id = Column(Integer, ForeignKey('bank.id'))
 	bank_number = Column(String)
+
+
+class Payment(Base):
+	__tablename__ = 'payment'
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
+	products = Column(String)
+	total = Column(Float)
+	created_at = Column(DateTime)
+	updated_at = Column(DateTime)
+	cancel = Column(Boolean)
+	admin_confirm = Column(Boolean)
+	status = Column(String)

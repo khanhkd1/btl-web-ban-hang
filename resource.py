@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from modules.product.product_api import Home, ProductWithBrandId
-from modules.cart_and_payment.cart_and_payments_api import CartWithUserId, BankWithUserId
+from modules.cart_and_payment.cart_and_payments_api import CartWithUserId, BankWithUserId, BankWithoutUserId, PaymentAPI
 from modules.user.user import UserWithoutUserId, UserWithUserId
 from libraries.connect_database import connect_database, User, Product, Brand
 from flask_admin import Admin
@@ -29,10 +29,14 @@ api.add_resource(Home, '/home', methods=['GET'])
 api.add_resource(ProductWithBrandId, '/brand/<int:brand_id>', methods=['GET'])
 
 # bank apis
+api.add_resource(BankWithoutUserId, '/bank', methods=['GET'])
 api.add_resource(BankWithUserId, '/bank/<int:user_id>', methods=['GET'])
 
 # cart apis
 api.add_resource(CartWithUserId, '/cart/<int:user_id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+
+# payment apis
+api.add_resource(PaymentAPI, '/payment/<int:user_id>', methods=['GET', 'POST'])
 
 # user apis
 api.add_resource(UserWithoutUserId, '/user', methods=['POST'])

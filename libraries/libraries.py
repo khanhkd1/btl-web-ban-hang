@@ -135,11 +135,40 @@ def get_banks_info_of_user(session, bank_info_obj, user_obj, bank_obj, user_id):
     banks_info_of_user = session.query(bank_info_obj).filter_by(user_id=user_id).all()
     for i in range(len(banks_info_of_user)):
         banks_info_of_user[i] = standardized_data(banks_info_of_user[i])
-        banks_info_of_user[i]['full_name'] = session.query(user_obj).filter_by(id=banks_info_of_user[i]['user_id']).first().full_name
-        banks_info_of_user[i]['bank_name'] = session.query(bank_obj).filter_by(id=banks_info_of_user[i]['bank_id']).first().bank_name
+        banks_info_of_user[i]['full_name'] = session.query(user_obj).filter_by(
+            id=banks_info_of_user[i]['user_id']).first().full_name
+        banks_info_of_user[i]['bank_name'] = session.query(bank_obj).filter_by(
+            id=banks_info_of_user[i]['bank_id']).first().bank_name
     return banks_info_of_user
 
 
 def get_user_by_id(session, user_obj, user_id):
     user = session.query(user_obj).filter_by(id=user_id).first()
-    return process_data(user, None, None, True)
+    return standardized_data(user)
+
+
+def get_banks(session, bank_obj):
+    banks = session.query(bank_obj).all()
+    for i in range(len(banks)):
+        banks[i] = standardized_data(banks[i])
+    return banks
+
+
+def process_products(products, session, product_obj):
+    products = products.split('-')
+    for i in range(len(products)):
+        products[i] = products[i].replace('[', '').replace(']', '').split(',')
+        products[i] = {
+            'productName': session.query(product_obj).filter_by(id=int(products[i][0])).first().productName,
+            'amount': int(products[i][1]),
+            'total_price': float(products[i][2])
+        }
+    return products
+
+
+def get_payments(session, payment_obj, product_obj, user_id):
+    payments = session.query(payment_obj).filter_by(user_id=user_id).all()
+    for i in range(len(payments)):
+        payments[i] = standardized_data(payments[i])
+        payments[i]['products'] = process_products(payments[i]['products'], session, product_obj)
+    return payments
