@@ -138,3 +138,8 @@ def get_banks_info_of_user(session, bank_info_obj, user_obj, bank_obj, user_id):
         banks_info_of_user[i]['full_name'] = session.query(user_obj).filter_by(id=banks_info_of_user[i]['user_id']).first().full_name
         banks_info_of_user[i]['bank_name'] = session.query(bank_obj).filter_by(id=banks_info_of_user[i]['bank_id']).first().bank_name
     return banks_info_of_user
+
+
+def get_user_by_id(session, user_obj, user_id):
+    user = session.query(user_obj).filter_by(id=user_id).first()
+    return process_data(user, None, None, True)

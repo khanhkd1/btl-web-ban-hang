@@ -1,5 +1,5 @@
 from libraries.connect_database import connect_database, Product, Cart, Bank, BankInfoOfUser, User
-from libraries.libraries import get_default, get_data_with_page, get_carts, get_banks_info_of_user
+from libraries.libraries import get_carts, get_banks_info_of_user
 from flask_restful import Resource
 from flask import request, jsonify, make_response
 from sqlalchemy import exc
@@ -141,7 +141,6 @@ class CartWithUserId(Resource):
             session_tmp.close()
 
 
-
 class BankWithUserId(Resource):
     def get(self, user_id):
         session_tmp = session()
@@ -175,5 +174,3 @@ class BankWithUserId(Resource):
 #     def post(self, user_id):
 #         data = request.get_json()
 #         session_tmp = session()
-
-
