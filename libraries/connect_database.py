@@ -21,6 +21,7 @@ class User(Base):
 	full_name = Column(String, nullable=False)
 	phone = Column(String(10), nullable=False)
 	email = Column(String, nullable=False)
+	address = Column(String)
 
 	product = relationship('Product', secondary='cart')
 
@@ -77,3 +78,16 @@ class Cart(Base):
 	amount = Column(Integer)
 	total_price = Column(Float)
 
+
+class Bank(Base):
+	__tablename__ = 'bank'
+	id = Column(Integer, primary_key=True)
+	bank_name = Column(String)
+
+
+class BankInfoOfUser(Base):
+	__tablename__ = 'bank_info_of_user'
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
+	bank_id = Column(Integer, ForeignKey('bank.id'))
+	bank_number = Column(String)

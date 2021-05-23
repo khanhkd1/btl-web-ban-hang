@@ -78,6 +78,40 @@ class UserWithoutUserId(Resource):
 
 
 class UserWithUserId(Resource):
+	def get(self, user_id):
+		session_tmp = session()
+		try:
+			user = session_tmp.query(User).filter_by(id=user_id).first()
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": {
+							"id": user.id,
+							"username": user.username,
+							"is_admin": user.is_admin,
+							"full_name": user.full_name,
+							"phone": user.phone,
+							"email": user.email,
+							"address": user.address
+						}
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": {}
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()
+
+
 	def put(self, user_id):
 		data = request.get_json()
 		session_tmp = session()
@@ -96,7 +130,8 @@ class UserWithUserId(Resource):
 							"is_admin": user.is_admin,
 							"full_name": user.full_name,
 							"phone": user.phone,
-							"email": user.email
+							"email": user.email,
+							"address": user.address
 						}
 					}
 				), 200
@@ -107,7 +142,7 @@ class UserWithUserId(Resource):
 				jsonify(
 					{
 						"message": f"{e}",
-						"data": []
+						"data": {}
 					}
 				), 500
 			)

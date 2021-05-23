@@ -123,13 +123,18 @@ def get_products(session, parameters, product_obj, brand_obj, order, offset, lim
     return products, total_count
 
 
-def get_carts(session, parameters, cart_obj, product_obj, order, offset, limit, user_id):
-    carts = session.query(cart_obj).filter_by(user_id=user_id)
-    carts = check_search(carts, parameters, cart_obj)
-    total_count = carts.count()
-    carts = carts.order_by(order).offset(offset).limit(limit).all()
-
+def get_carts(session, cart_obj, product_obj, user_id):
+    carts = session.query(cart_obj).filter_by(user_id=user_id).all()
     for i in range(len(carts)):
         carts[i] = standardized_data(carts[i])
         carts[i]['product'] = session.query(product_obj).filter_by(id=carts[i]['product_id']).first().productName
-    return carts, total_count
+    return carts
+
+
+def get_banks_info_of_user(session, bank_info_obj, user_obj, bank_obj, user_id):
+    banks_info_of_user = session.query(bank_info_obj).filter_by(user_id=user_id).all()
+    for i in range(len(banks_info_of_user)):
+        banks_info_of_user[i] = standardized_data(banks_info_of_user[i])
+        banks_info_of_user[i]['full_name'] = session.query(user_obj).filter_by(id=banks_info_of_user[i]['user_id']).first().full_name
+        banks_info_of_user[i]['bank_name'] = session.query(bank_obj).filter_by(id=banks_info_of_user[i]['bank_id']).first().bank_name
+    return banks_info_of_user
