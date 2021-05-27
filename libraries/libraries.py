@@ -172,3 +172,16 @@ def get_payments(session, payment_obj, product_obj, user_id):
         payments[i] = standardized_data(payments[i])
         payments[i]['products'] = process_products(payments[i]['products'], session, product_obj)
     return payments
+
+
+def get_cameras_or_laptops(session, product_obj, brand_obj, is_camera):
+    brands = session.query(brand_obj).filter_by(is_camera=is_camera).all()
+    for i in range(len(brands)):
+        brands[i] = standardized_data(brands[i])
+        del brands[i]['is_camera']
+        del brands[i]['is_laptop']
+        brands[i]['products'] = []
+        products = session.query(product_obj).filter_by(brand_id=brands[i]['id']).all()
+        for j in range(len(products)):
+            brands[i]['products'].append(process_data(products[j], session, brand_obj, False))
+    return brands

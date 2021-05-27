@@ -1,5 +1,5 @@
 from libraries.connect_database import connect_database, Product, Brand
-from libraries.libraries import get_default, get_data_with_page, get_brands, get_products
+from libraries.libraries import get_default, get_data_with_page, get_brands, get_products, get_cameras_or_laptops
 from flask_restful import Resource
 from flask import request, jsonify, make_response
 from sqlalchemy import exc
@@ -66,6 +66,60 @@ class ProductWithBrandId(Resource):
 							"camera_brands": camera_brands,
 							"laptop_brands": laptop_brands
 						}
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": []
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()
+
+
+class Camera(Resource):
+	def get(self):
+		session_tmp = session()
+		try:
+			brand_with_products = get_cameras_or_laptops(session_tmp, Product, Brand, True)
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": brand_with_products
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": []
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()
+
+
+class Laptop(Resource):
+	def get(self):
+		session_tmp = session()
+		try:
+			brand_with_products = get_cameras_or_laptops(session_tmp, Product, Brand, False)
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": brand_with_products
 					}
 				), 200
 			)

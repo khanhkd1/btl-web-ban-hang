@@ -24,6 +24,7 @@ class User(Base):
 	address = Column(String)
 
 	product = relationship('Product', secondary='cart')
+	bank = relationship('Bank', secondary='bank_info_of_user')
 
 	def __init__(self, username, password, is_admin, full_name, phone, email):
 		self.username = username
@@ -39,6 +40,9 @@ class User(Base):
 	def check_password(self, password):
 		return check_password_hash(self.password, password)
 
+	def __repr__(self):
+		return self.username
+
 
 class Brand(Base):
 	__tablename__ = 'brand'
@@ -47,8 +51,6 @@ class Brand(Base):
 	is_laptop = Column(Boolean)
 	is_camera = Column(Boolean)
 
-	product_brand = relationship('Product', backref='brand')
-
 	def __repr__(self):
 		return self.brand
 
@@ -56,7 +58,7 @@ class Brand(Base):
 class Product(Base):
 	__tablename__ = 'product'
 	id = Column(Integer, primary_key=True)
-	brand_id = Column(Integer, ForeignKey('brand.id'))
+	brand_id = Column(Integer, ForeignKey('brand.id'), primary_key=True)
 	productName = Column(String, nullable=False)
 	quantity = Column(Integer, nullable=False)
 	price = Column(Float, nullable=False)
@@ -64,6 +66,7 @@ class Product(Base):
 	productSummary = Column(String, nullable=False)
 	warranty = Column(String, nullable=False)
 
+	brand = relationship('Brand', backref='product')
 	user = relationship('User', secondary='cart')
 
 	def __repr__(self):
@@ -78,19 +81,36 @@ class Cart(Base):
 	amount = Column(Integer)
 	total_price = Column(Float)
 
+	user = relationship('User', backref='cart')
+	product = relationship('Product', backref='cart')
+
+	def __repr__(self):
+		return str(self.id)
+
 
 class Bank(Base):
 	__tablename__ = 'bank'
 	id = Column(Integer, primary_key=True)
 	bank_name = Column(String)
 
+	user = relationship('User', secondary='bank_info_of_user')
+
+	def __repr__(self):
+		return self.bank_name
+
 
 class BankInfoOfUser(Base):
 	__tablename__ = 'bank_info_of_user'
 	id = Column(Integer, primary_key=True)
 	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-	bank_id = Column(Integer, ForeignKey('bank.id'))
+	bank_id = Column(Integer, ForeignKey('bank.id'), primary_key=True)
 	bank_number = Column(String)
+
+	user = relationship('User', backref='bank_info_of_user')
+	bank = relationship('Bank', backref='bank_info_of_user')
+
+	def __repr__(self):
+		return str(self.id)
 
 
 class Payment(Base):
@@ -104,3 +124,8 @@ class Payment(Base):
 	cancel = Column(Boolean)
 	admin_confirm = Column(Boolean)
 	status = Column(String)
+
+	user = relationship('User', backref='payment')
+
+	def __repr__(self):
+		return str(self.id)
