@@ -21,10 +21,9 @@ class User(Base):
 	full_name = Column(String, nullable=False)
 	phone = Column(String(10), nullable=False)
 	email = Column(String, nullable=False)
-	address = Column(String)
 
 	product = relationship('Product', secondary='cart')
-	bank = relationship('Bank', secondary='bank_info_of_user')
+	bank = relationship('Bank', secondary='bank_of_user')
 
 	def __init__(self, username, password, is_admin, full_name, phone, email):
 		self.username = username
@@ -42,6 +41,15 @@ class User(Base):
 
 	def __repr__(self):
 		return self.username
+
+
+class Address(Base):
+	__tablename__ = 'address'
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
+	full_name = Column(String)
+	phone = Column(String)
+	address = Column(String)
 
 
 class Brand(Base):
@@ -93,21 +101,21 @@ class Bank(Base):
 	id = Column(Integer, primary_key=True)
 	bank_name = Column(String)
 
-	user = relationship('User', secondary='bank_info_of_user')
+	user = relationship('User', secondary='bank_of_user')
 
 	def __repr__(self):
 		return self.bank_name
 
 
-class BankInfoOfUser(Base):
-	__tablename__ = 'bank_info_of_user'
+class BankOfUser(Base):
+	__tablename__ = 'bank_of_user'
 	id = Column(Integer, primary_key=True)
 	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
 	bank_id = Column(Integer, ForeignKey('bank.id'), primary_key=True)
 	bank_number = Column(String)
 
-	user = relationship('User', backref='bank_info_of_user')
-	bank = relationship('Bank', backref='bank_info_of_user')
+	user = relationship('User', backref='bank_of_user')
+	bank = relationship('Bank', backref='bank_of_user')
 
 	def __repr__(self):
 		return str(self.id)

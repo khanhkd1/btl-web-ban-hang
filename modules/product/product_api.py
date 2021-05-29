@@ -1,5 +1,5 @@
 from libraries.connect_database import connect_database, Product, Brand
-from libraries.libraries import get_default, get_data_with_page, get_brands, get_products, get_cameras_or_laptops
+from libraries.libraries import get_default, get_data_with_page, get_brands, get_products, get_cameras_or_laptops, get_product
 from flask_restful import Resource
 from flask import request, jsonify, make_response
 from sqlalchemy import exc
@@ -76,6 +76,32 @@ class ProductWithBrandId(Resource):
 					{
 						"message": f"{e}",
 						"data": []
+					}
+				), 500
+			)
+		finally:
+			session_tmp.close()
+
+
+class ProductWithProductId(Resource):
+	def get(self, product_id):
+		session_tmp = session()
+		try:
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": get_product(session_tmp, Product, Brand, product_id)
+					}
+				), 200
+			)
+		except exc as e:
+			session_tmp.rollback()
+			return make_response(
+				jsonify(
+					{
+						"message": f"{e}",
+						"data": {}
 					}
 				), 500
 			)

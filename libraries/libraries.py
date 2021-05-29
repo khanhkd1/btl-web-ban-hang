@@ -57,6 +57,8 @@ def standardized_data(obj, del_param=None, param=None):
 
 
 def process_data(data, session_tmp, obj, is_brand):
+    if data is None:
+        return None
     if is_brand:
         return standardized_data(data)
     data = standardized_data(data)
@@ -123,6 +125,11 @@ def get_products(session, parameters, product_obj, brand_obj, order, offset, lim
     return products, total_count
 
 
+def get_product(session, product_obj, brand_obj, product_id):
+    product = session.query(product_obj).filter_by(id=product_id).first()
+    return process_data(product, session, brand_obj, False)
+
+
 def get_carts(session, cart_obj, product_obj, user_id):
     carts = session.query(cart_obj).filter_by(user_id=user_id).all()
     for i in range(len(carts)):
@@ -172,6 +179,14 @@ def get_payments(session, payment_obj, product_obj, user_id):
         payments[i] = standardized_data(payments[i])
         payments[i]['products'] = process_products(payments[i]['products'], session, product_obj)
     return payments
+
+
+def get_addresses(session, address_obj, user_id):
+    addresses = session.query(address_obj).filter_by(user_id=user_id).all()
+    for i in range(len(addresses)):
+        addresses[i] = standardized_data(addresses[i])
+        del addresses[i]['user_id']
+    return addresses 
 
 
 def get_cameras_or_laptops(session, product_obj, brand_obj, is_camera):
