@@ -17,21 +17,21 @@ class User(Base):
 	id = Column(Integer, primary_key=True)
 	username = Column(String, nullable=False)
 	password = Column(String(255), nullable=False)
-	is_admin = Column(Boolean)
-	full_name = Column(String, nullable=False)
-	phone = Column(String(10), nullable=False)
-	email = Column(String, nullable=False)
+	is_admin = Column(Boolean, nullable=False)
+	full_name = Column(String)
+	phone = Column(String(10))
+	email = Column(String)
 
 	product = relationship('Product', secondary='cart')
 	bank = relationship('Bank', secondary='bank_of_user')
 
-	def __init__(self, username, password, is_admin, full_name, phone, email):
+	def __init__(self, username, password):
 		self.username = username
 		self.set_password(password)
-		self.is_admin = is_admin
-		self.full_name = full_name
-		self.phone = phone
-		self.email = email
+		self.is_admin = False
+		self.full_name = ''
+		self.phone = ''
+		self.email = ''
 
 	def set_password(self, password):
 		self.password = generate_password_hash(password)
@@ -94,6 +94,13 @@ class Cart(Base):
 
 	def __repr__(self):
 		return str(self.id)
+
+
+class Favorite(Base):
+	__tablename__ = 'favorite'
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
+	product_id = Column(Integer, ForeignKey('product.id'), primary_key=True)
 
 
 class Bank(Base):
