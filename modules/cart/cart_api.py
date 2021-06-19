@@ -40,8 +40,12 @@ class CartUserProduct(Resource):
                 }
             )
         self.session.commit()
+        carts = get_carts(self.session, Cart, Product, user_id)
         self.session.close()
-        return
+        return {
+            "carts": carts,
+            "total": sum([x['total_price'] for x in carts])
+        }
 
     def put(self, user_id, product_id):
         data = request.get_json()
@@ -53,14 +57,22 @@ class CartUserProduct(Resource):
             }
         )
         self.session.commit()
+        carts = get_carts(self.session, Cart, Product, user_id)
         self.session.close()
-        return
+        return {
+            "carts": carts,
+            "total": sum([x['total_price'] for x in carts])
+        }
 
     def delete(self, user_id, product_id):
         self.session.query(Cart).filter_by(user_id=user_id, product_id=product_id).delete()
         self.session.commit()
+        carts = get_carts(self.session, Cart, Product, user_id)
         self.session.close()
-        return
+        return {
+            "carts": carts,
+            "total": sum([x['total_price'] for x in carts])
+        }
 
 
 class PaymentAPI(Resource):

@@ -77,61 +77,40 @@ class UserAPI(Resource):
         self.session = session()
 
     def get(self, user_id):
-        try:
-            return make_response(
-                jsonify(
-                    {
-                        "message": "done",
-                        "data": get_user_by_id(self.session, User, user_id)
-                    }
-                ), 200
-            )
-        except exc as e:
-            return make_response(
-                jsonify(
-                    {
-                        "message": f"{e}",
-                        "data": {}
-                    }
-                ), 500
-            )
-        finally:
-            self.session.close()
+        user = get_user_by_id(self.session, User, user_id)
+        self.session.close()
+        return make_response(
+            jsonify(
+                {
+                    "message": "done",
+                    "user": user
+                }
+            ), 200
+        )
 
     def put(self, user_id):
         data = request.get_json()
         self.session.query(User).filter_by(id=user_id).update(data)
-        try:
-            self.session.commit()
-            user = get_user_by_id(self.session, User, user_id)
-            return make_response(
-                jsonify(
-                    {
-                        "message": "done",
-                        "data": user
-                    }
-                ), 200
-            )
-        except exc as e:
-            return make_response(
-                jsonify(
-                    {
-                        "message": f"{e}",
-                        "data": {}
-                    }
-                ), 500
-            )
-        finally:
-            self.session.close()
+        self.session.commit()
+        user = get_user_by_id(self.session, User, user_id)
+        self.session.close()
+        return make_response(
+            jsonify(
+                {
+                    "message": "done",
+                    "user": user
+                }
+            ), 200
+        )            
 
     def delete(self, user_id):
         self.session.query(User).filter_by(id=user_id).delete()
         self.session.commit()
         return make_response(
-                jsonify(
-                    {
-                        "message": "done",
-                        "data": None
-                    }
-                ), 200
-            )
+            jsonify(
+                {
+                    "message": "done",
+                    "data": None
+                }
+            ), 200
+        )

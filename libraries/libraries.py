@@ -1,4 +1,5 @@
 from sqlalchemy import or_
+import random
 
 
 def get_default(parameters, metadata, obj):
@@ -134,7 +135,11 @@ def get_carts(session, cart_obj, product_obj, user_id):
     carts = session.query(cart_obj).filter_by(user_id=user_id).all()
     for i in range(len(carts)):
         carts[i] = standardized_data(carts[i])
-        carts[i]['product'] = session.query(product_obj).filter_by(id=carts[i]['product_id']).first().productName
+        carts[i]['product'] = {}
+        product = session.query(product_obj).filter_by(id=carts[i]['product_id']).first()
+        carts[i]['product']['name'] = product.productName
+        carts[i]['product']['image'] = random.choice(product.images.split(','))
+        carts[i]['product']['price'] = product.price
     return carts
 
 

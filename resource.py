@@ -52,21 +52,21 @@ api.add_resource(SignIn, '/user/signin', methods=['POST'])
 # api đăng ký
 api.add_resource(SignUp, '/user/signup', methods=['POST'])
 
+# api lấy danh sách yêu thích
+api.add_resource(FavoriteUser, '/user/favorite/<int:user_id>', methods=['GET'])
+
+# api thêm sản phẩm vào danh sách yêu thích, xoá sản phẩm khỏi danh sách yêu thích
+api.add_resource(FavoriteUserProduct, '/user/favorite/<int:user_id>/<int:product_id>', methods=['POST', 'DELETE'])
+
+# api lấy danh sách giỏ hàng
+api.add_resource(CartUser, '/user/cart/<int:user_id>', methods=['GET'])
+
+# api thêm sản phẩm vào danh sách giỏ hàng, sửa số lượng sản phẩm trong giỏ hàng, xoá sản phẩm khỏi giỏ hàng
+api.add_resource(CartUserProduct, '/user/cart/<int:user_id>/<int:product_id>', methods=['POST', 'PUT', 'DELETE'])
+
+
 # # api lấy thông tin, chỉnh sửa thông tin, xoá user
 # api.add_resource(UserAPI, '/user/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
-
-# # api lấy danh sách yêu thích
-# api.add_resource(FavoriteUser, '/user/favorite/<int:user_id>', methods=['GET'])
-
-# # api thêm sản phẩm vào danh sách yêu thích, xoá sản phẩm khỏi danh sách yêu thích
-# api.add_resource(FavoriteUserProduct, '/user/favorite/<int:user_id>/<int:product_id>', methods=['POST', 'DELETE'])
-
-# # api lấy danh sách giỏ hàng
-# api.add_resource(CartUser, '/user/cart/<int:user_id>', methods=['GET'])
-
-# # api thêm sản phẩm vào danh sách giỏ hàng, sửa số lượng sản phẩm trong giỏ hàng, xoá sản phẩm khỏi giỏ hàng
-# api.add_resource(CartUserProduct, '/user/cart/<int:user_id>/<int:product_id>', methods=['POST', 'PUT', 'DELETE'])
-
 
 # # api lấy danh sách ngân hàng được phép liên kết
 # api.add_resource(BankAPI, '/bank', methods=['GET'])

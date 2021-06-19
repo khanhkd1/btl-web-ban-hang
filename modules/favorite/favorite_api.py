@@ -24,15 +24,16 @@ class FavoriteUserProduct(Resource):
 
 	def post(self, user_id, product_id):
 		favorite = self.session.query(Favorite).filter_by(user_id=user_id, product_id=product_id).first()
-		if favorite:
-			return
-		self.session.add(Favorite(user_id=user_id, product_id=product_id))
-		self.session.commit()
+		if not favorite:
+			self.session.add(Favorite(user_id=user_id, product_id=product_id))
+			self.session.commit()
+		favorites = get_favorites(self.session, Favorite, Product, user_id)
 		self.session.close()
-		return
+		return favorites
 
 	def delete(self, user_id, product_id):
 		self.session.query(Favorite).filter_by(user_id=user_id, product_id=product_id).delete()
 		self.session.commit()
+		favorites = get_favorites(self.session, Favorite, Product, user_id)
 		self.session.close()
-		return
+		return favorites
