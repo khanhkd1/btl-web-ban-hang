@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 def connect_database():
-	engine = create_engine('mysql://root:vjpvjp123A01@47.254.253.64/lap_trinh_web_api?charset=utf8mb4', pool_size=20, max_overflow=0)
+	engine = create_engine('mysql://root:vjpvjp123A01@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=20, max_overflow=0)
 	session = sessionmaker(bind=engine)
 	return session
 
@@ -23,7 +23,7 @@ class User(Base):
 	email = Column(String)
 
 	product = relationship('Product', secondary='cart')
-	bank = relationship('Bank', secondary='bank_of_user')
+	bank = relationship('Bank', secondary='bank_of_user', back_populates='user')
 
 	def __init__(self, username, password):
 		self.username = username
@@ -39,8 +39,8 @@ class User(Base):
 	def check_password(self, password):
 		return check_password_hash(self.password, password)
 
-	def __repr__(self):
-		return self.username
+	# def __repr__(self):
+	# 	return self.username
 
 
 class Address(Base):
@@ -59,8 +59,8 @@ class Brand(Base):
 	is_laptop = Column(Boolean)
 	is_camera = Column(Boolean)
 
-	def __repr__(self):
-		return self.brand
+	# def __repr__(self):
+	# 	return self.brand
 
 
 class Product(Base):
@@ -75,10 +75,10 @@ class Product(Base):
 	warranty = Column(String, nullable=False)
 
 	brand = relationship('Brand', backref='product')
-	user = relationship('User', secondary='cart')
+	user = relationship('User', secondary='cart', back_populates='product')
 
-	def __repr__(self):
-		return self.productName
+	# def __repr__(self):
+	# 	return self.productName
 
 
 class Cart(Base):
@@ -89,11 +89,11 @@ class Cart(Base):
 	amount = Column(Integer)
 	total_price = Column(Float)
 
-	user = relationship('User', backref='cart')
-	product = relationship('Product', backref='cart')
+	# user = relationship('User', backref='cart')
+	# product = relationship('Product', backref='cart')
 
-	def __repr__(self):
-		return str(self.id)
+	# def __repr__(self):
+	# 	return str(self.id)
 
 
 class Favorite(Base):
@@ -108,10 +108,10 @@ class Bank(Base):
 	id = Column(Integer, primary_key=True)
 	bank_name = Column(String)
 
-	user = relationship('User', secondary='bank_of_user')
+	user = relationship('User', secondary='bank_of_user', back_populates='bank')
 
-	def __repr__(self):
-		return self.bank_name
+	# def __repr__(self):
+	# 	return self.bank_name
 
 
 class BankOfUser(Base):
@@ -121,11 +121,11 @@ class BankOfUser(Base):
 	bank_id = Column(Integer, ForeignKey('bank.id'), primary_key=True)
 	bank_number = Column(String)
 
-	user = relationship('User', backref='bank_of_user')
-	bank = relationship('Bank', backref='bank_of_user')
+	# user = relationship('User', backref='bank_of_user', overlaps='User.bank')
+	# bank = relationship('Bank', backref='bank_of_user', overlaps='Bank.user')
 
-	def __repr__(self):
-		return str(self.id)
+	# def __repr__(self):
+	# 	return str(self.id)
 
 
 class Payment(Base):
@@ -140,7 +140,7 @@ class Payment(Base):
 	admin_confirm = Column(Boolean)
 	status = Column(String)
 
-	user = relationship('User', backref='payment')
+	# user = relationship('User', backref='payment')
 
-	def __repr__(self):
-		return str(self.id)
+	# def __repr__(self):
+	# 	return str(self.id)
