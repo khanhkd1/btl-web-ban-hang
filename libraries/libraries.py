@@ -1,5 +1,8 @@
+from libraries.connect_database import connect_database, User, Product, Cart, Favorite, Bank, BankOfUser, Address
 from sqlalchemy import or_
+from sqlalchemy.ext.declarative import DeclarativeMeta
 import random
+import json
 
 
 def get_default(parameters, metadata, obj):
@@ -32,29 +35,20 @@ def get_default(parameters, metadata, obj):
     return limit, page, offset, order
 
 
-def standardized_data(obj, del_param=None, param=None):
-    data = {}
-    try:
-        obj = obj.__dict__
-    except:
-        return None
-    try:
-        if '_sa_instance_state' in obj:
-            del obj["_sa_instance_state"]
-    except:
-        pass
-    if del_param is not None:
-        for d in del_param:
+def standardized_data(obj):
+    if isinstance(obj.__class__, DeclarativeMeta):
+        # an SQLAlchemy class
+        fields = {}
+        for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+            data = obj.__getattribute__(field)
             try:
-                del obj[d]
-            except:
-                pass
-    if param is not None:
-        for p in param:
-            data[p] = obj[param[p]]
-        return data
-
-    return obj
+                json.dumps(data) # this will fail on non-encodable values, like other classes
+                fields[field] = data
+            except TypeError:
+                fields[field] = None
+        # a json-encodable dict
+        return fields
+    return json.JSONEncoder.default(self, obj)
 
 
 def process_data(data, session_tmp, obj, is_brand):
@@ -131,50 +125,63 @@ def get_product(session, product_obj, brand_obj, product_id):
     return process_data(product, session, brand_obj, False)
 
 
-def get_carts(session, cart_obj, product_obj, user_id):
-    carts = session.query(cart_obj).filter_by(user_id=user_id).all()
+def get_carts(session, user_id):
+    carts = session.query(Cart).filter_by(user_id=user_id).all()
     for i in range(len(carts)):
         carts[i] = standardized_data(carts[i])
         carts[i]['product'] = {}
-        product = session.query(product_obj).filter_by(id=carts[i]['product_id']).first()
+        product = session.query(Product).filter_by(id=carts[i]['product_id']).first()
         carts[i]['product']['name'] = product.productName
         carts[i]['product']['image'] = random.choice(product.images.split(','))
         carts[i]['product']['price'] = product.price
+        del carts[i]['registry']
     return carts
 
 
-def get_favorites(session, favorite_obj, product_obj, user_id):
-    favorites = session.query(favorite_obj).filter_by(user_id=user_id).all()
+def get_favorites(session, user_id):
+    favorites = session.query(Favorite).filter_by(user_id=user_id).all()
     for i in range(len(favorites)):
         favorites[i] = standardized_data(favorites[i])
-        favorites[i]['product'] = session.query(product_obj).filter_by(id=favorites[i]['product_id']).first().productName
+        favorites[i]['product'] = {}
+        product = session.query(Product).filter_by(id=favorites[i]['product_id']).first()
+        favorites[i]['product']['name'] = product.productName
+        favorites[i]['product']['image'] = random.choice(product.images.split(','))
+        favorites[i]['product']['price'] = product.price
+        del favorites[i]['registry']
     return favorites
 
 
-def get_banks_of_user(session, bank_info_obj, user_obj, bank_obj, user_id):
-    banks_of_user = session.query(bank_info_obj).filter_by(user_id=user_id).all()
+def get_banks_of_user(session, user_id):
+    banks_of_user = session.query(BankOfUser).filter_by(user_id=user_id).all()
     for i in range(len(banks_of_user)):
         banks_of_user[i] = standardized_data(banks_of_user[i])
-        banks_of_user[i]['full_name'] = session.query(user_obj).filter_by(
+        banks_of_user[i]['full_name'] = session.query(User).filter_by(
             id=banks_of_user[i]['user_id']).first().full_name
-        banks_of_user[i]['bank_name'] = session.query(bank_obj).filter_by(
+        banks_of_user[i]['bank_name'] = session.query(Bank).filter_by(
             id=banks_of_user[i]['bank_id']).first().bank_name
+        del banks_of_user[i]['registry']
     return banks_of_user
 
 
-def get_user_by_id(session, user_obj, user_id):
-    user = session.query(user_obj).filter_by(id=user_id).first()
+def get_user_by_id(session, user_id):
+    user = session.query(User).filter_by(id=user_id).first()
     if user is None:
         return None
     user = standardized_data(user)
-    del user['password']
-    del user['is_admin']
-    del user['id']
+    user['carts'] = get_carts(session, user_id)
+    user['favorites'] = get_favorites(session, user_id)
+    user['banks'] = get_banks_of_user(session, user_id)
+    user['addresses'] = get_addresses(session, user_id)
+    for field_name in ['bank', 'check_password', 'set_password', 'registry', 'product', 'password']:
+        try:
+            del user[field_name]
+        except:
+            continue
     return user
 
 
-def get_banks(session, bank_obj):
-    banks = session.query(bank_obj).all()
+def get_banks(session):
+    banks = session.query(Bank).all()
     for i in range(len(banks)):
         banks[i] = standardized_data(banks[i])
     return banks
@@ -200,11 +207,11 @@ def get_payments(session, payment_obj, product_obj, user_id):
     return payments
 
 
-def get_addresses(session, address_obj, user_id):
-    addresses = session.query(address_obj).filter_by(user_id=user_id).all()
+def get_addresses(session, user_id):
+    addresses = session.query(Address).filter_by(user_id=user_id).all()
     for i in range(len(addresses)):
         addresses[i] = standardized_data(addresses[i])
-        del addresses[i]['user_id']
+        del addresses[i]['registry']
     return addresses 
 
 

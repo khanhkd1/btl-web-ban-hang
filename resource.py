@@ -65,8 +65,8 @@ api.add_resource(CartUser, '/user/cart/<int:user_id>', methods=['GET'])
 api.add_resource(CartUserProduct, '/user/cart/<int:user_id>/<int:product_id>', methods=['POST', 'PUT', 'DELETE'])
 
 
-# # api lấy thông tin, chỉnh sửa thông tin, xoá user
-# api.add_resource(UserAPI, '/user/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
+# api lấy thông tin, chỉnh sửa thông tin, xoá user
+api.add_resource(UserAPI, '/user/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 
 # # api lấy danh sách ngân hàng được phép liên kết
 # api.add_resource(BankAPI, '/bank', methods=['GET'])

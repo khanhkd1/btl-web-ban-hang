@@ -15,7 +15,7 @@ class AddressUserId(Resource):
 				jsonify(
 					{
 						"message": "done",
-						"data": get_addresses(session_tmp, Address, user_id)
+						"data": get_addresses(session_tmp, user_id)
 					}
 				), 200
 			)
@@ -49,7 +49,7 @@ class AddressUserId(Resource):
 				jsonify(
 					{
 						"message": "done",
-						"data": get_addresses(session_tmp, Address, user_id)
+						"data": get_addresses(session_tmp, user_id)
 					}
 				), 200
 			)
@@ -77,7 +77,7 @@ class AddressAddressId(Resource):
 				jsonify(
 					{
 						"message": "done",
-						"data": get_addresses(session_tmp, Address, user_id)
+						"data": get_addresses(session_tmp, user_id)
 					}
 				), 200
 			)
@@ -103,7 +103,7 @@ class AddressAddressId(Resource):
 				jsonify(
 					{
 						"message": "done",
-						"data": get_addresses(session_tmp, Address, user_id)
+						"data": get_addresses(session_tmp, user_id)
 					}
 				), 200
 			)

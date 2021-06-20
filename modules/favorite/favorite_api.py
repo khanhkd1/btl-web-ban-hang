@@ -1,8 +1,6 @@
-from libraries.connect_database import connect_database, Product, Favorite
+from libraries.connect_database import connect_database, Favorite
 from libraries.libraries import get_favorites
 from flask_restful import Resource
-from flask import request, jsonify, make_response
-from sqlalchemy import exc
 
 
 session = connect_database()
@@ -13,7 +11,7 @@ class FavoriteUser(Resource):
 		self.session = session()
 
 	def get(self, user_id):
-		favorites = get_favorites(self.session, Favorite, Product, user_id)
+		favorites = get_favorites(self.session, user_id)
 		self.session.close()
 		return favorites
 
@@ -27,13 +25,13 @@ class FavoriteUserProduct(Resource):
 		if not favorite:
 			self.session.add(Favorite(user_id=user_id, product_id=product_id))
 			self.session.commit()
-		favorites = get_favorites(self.session, Favorite, Product, user_id)
+		favorites = get_favorites(self.session, user_id)
 		self.session.close()
 		return favorites
 
 	def delete(self, user_id, product_id):
 		self.session.query(Favorite).filter_by(user_id=user_id, product_id=product_id).delete()
 		self.session.commit()
-		favorites = get_favorites(self.session, Favorite, Product, user_id)
+		favorites = get_favorites(self.session, user_id)
 		self.session.close()
 		return favorites
