@@ -2,7 +2,6 @@ from libraries.connect_database import connect_database, Address
 from flask_restful import Resource
 from flask import request, jsonify, make_response
 from libraries.libraries import get_addresses
-from sqlalchemy import exc
 
 session = connect_database()
 
@@ -47,7 +46,7 @@ class AddressUserAPI(Resource):
 
 	def put(self, user_id):
 		data = request.get_json()
-		address_id=data['address_id']
+		address_id = data['address_id']
 		del data['address_id']
 		self.session.query(Address).filter_by(id=address_id).update(data)
 		self.session.commit()

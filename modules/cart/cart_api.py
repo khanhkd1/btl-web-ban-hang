@@ -1,9 +1,7 @@
-from libraries.connect_database import connect_database, Product, Cart, Payment
-from libraries.libraries import get_carts, get_payments
+from libraries.connect_database import connect_database, Product, Cart
+from libraries.libraries import get_carts
 from flask_restful import Resource
-from flask import request, jsonify, make_response
-from sqlalchemy import exc
-import datetime
+from flask import request
 
 session = connect_database()
 
@@ -56,7 +54,6 @@ class CartUserProduct(Resource):
             "carts": carts,
             "total": sum([x['total_price'] for x in carts])
         }
-
 
     def delete(self, user_id, product_id):
         self.session.query(Cart).filter_by(user_id=user_id, product_id=product_id).delete()

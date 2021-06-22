@@ -7,7 +7,6 @@ click==8.0.0
 cryptography @ file:///opt/concourse/worker/volumes/live/806790c7-13c6-41bc-7395-be030ef629d2/volume/cryptography_1616769285001/work
 dataclasses
 Flask==1.1.2
-Flask-Admin==1.5.8
 Flask-Cors==3.0.10
 Flask-RESTful==0.3.8
 greenlet==1.1.0
