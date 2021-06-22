@@ -1,4 +1,4 @@
-from libraries.connect_database import connect_database, User, Product, Cart, Favorite, Bank, BankOfUser, Address
+from libraries.connect_database import connect_database, User, Product, Cart, Favorite, Bank, BankOfUser, Address, Payment, PaymentType
 from sqlalchemy import or_
 from sqlalchemy.ext.declarative import DeclarativeMeta
 import random
@@ -184,26 +184,34 @@ def get_banks(session):
     banks = session.query(Bank).all()
     for i in range(len(banks)):
         banks[i] = standardized_data(banks[i])
+        del banks[i]['registry'], banks[i]['user']
     return banks
 
 
-def process_products(products, session, product_obj):
+def process_products(products, session):
     products = products.split('-')
     for i in range(len(products)):
         products[i] = products[i].replace('[', '').replace(']', '').split(',')
+        if products[i][0] == '':
+            continue
         products[i] = {
-            'productName': session.query(product_obj).filter_by(id=int(products[i][0])).first().productName,
-            'amount': int(products[i][1]),
-            'total_price': float(products[i][2])
+            'productName': session.query(Product).filter_by(id=int(products[i][0])).first().productName.strip(),
+            'amount': int(products[i][1].strip()),
+            'total_price': float(products[i][2].strip())
         }
     return products
 
 
-def get_payments(session, payment_obj, product_obj, user_id):
-    payments = session.query(payment_obj).filter_by(user_id=user_id).all()
+def get_payments(session, user_id):
+    payments = session.query(Payment).filter_by(user_id=user_id).all()
     for i in range(len(payments)):
         payments[i] = standardized_data(payments[i])
-        payments[i]['products'] = process_products(payments[i]['products'], session, product_obj)
+        payments[i]['products'] = process_products(payments[i]['products'], session)
+        payments[i]['payment_type'] = session.query(PaymentType).filter_by(id=payments[i]['payment_type_id']).first().name
+        address = standardized_data(session.query(Address).filter_by(id=payments[i]['address_id']).first())
+        del address['registry']
+        payments[i]['address'] = address
+        del payments[i]['registry']
     return payments
 
 
@@ -215,14 +223,22 @@ def get_addresses(session, user_id):
     return addresses 
 
 
-def get_cameras_or_laptops(session, product_obj, brand_obj, is_camera):
-    brands = session.query(brand_obj).filter_by(is_camera=is_camera).all()
+def get_cameras_or_laptops(session, is_camera):
+    brands = session.query(Brand).filter_by(is_camera=is_camera).all()
     for i in range(len(brands)):
         brands[i] = standardized_data(brands[i])
         del brands[i]['is_camera']
         del brands[i]['is_laptop']
         brands[i]['products'] = []
-        products = session.query(product_obj).filter_by(brand_id=brands[i]['id']).all()
+        products = session.query(Product).filter_by(brand_id=brands[i]['id']).all()
         for j in range(len(products)):
-            brands[i]['products'].append(process_data(products[j], session, brand_obj, False))
+            brands[i]['products'].append(process_data(products[j], session, Brand, False))
     return brands
+
+
+def get_payment_types(session):
+    payment_types = session.query(PaymentType).all()
+    for i in range(len(payment_types)):
+        payment_types[i] = standardized_data(payment_types[i])
+        del payment_types[i]['registry']
+    return payment_types

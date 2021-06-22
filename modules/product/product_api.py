@@ -113,7 +113,7 @@ class Camera(Resource):
 	def get(self):
 		session_tmp = session()
 		try:
-			brand_with_products = get_cameras_or_laptops(session_tmp, Product, Brand, True)
+			brand_with_products = get_cameras_or_laptops(session_tmp, True)
 			return make_response(
 				jsonify(
 					{
@@ -140,7 +140,7 @@ class Laptop(Resource):
 	def get(self):
 		session_tmp = session()
 		try:
-			brand_with_products = get_cameras_or_laptops(session_tmp, Product, Brand, False)
+			brand_with_products = get_cameras_or_laptops(session_tmp, False)
 			return make_response(
 				jsonify(
 					{
