@@ -1,8 +1,10 @@
-from libraries.connect_database import connect_database, User, Product, Cart, Favorite, Bank, BankOfUser, Address, Payment, PaymentType
-from sqlalchemy import or_
+from libraries.connect_database import connect_database, User, Product, Cart, Favorite, Bank, BankOfUser, Address, \
+    Payment, PaymentType, Brand, VisitsLog
+from sqlalchemy import or_, func
 from sqlalchemy.ext.declarative import DeclarativeMeta
 import random
 import json
+from datetime import date, timedelta
 
 
 def get_default(parameters, metadata, obj):
@@ -42,13 +44,13 @@ def standardized_data(obj):
         for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
             data = obj.__getattribute__(field)
             try:
-                json.dumps(data) # this will fail on non-encodable values, like other classes
+                json.dumps(data)  # this will fail on non-encodable values, like other classes
                 fields[field] = data
             except TypeError:
                 fields[field] = None
         # a json-encodable dict
         return fields
-    return json.JSONEncoder.default(self, obj)
+    return json.JSONEncoder.default(obj)
 
 
 def process_data(data, session_tmp, obj, is_brand):
@@ -90,8 +92,8 @@ def check_search(query, parameters, obj):
     return query
 
 
-def get_brands(session, brand_obj):
-    brands = session.query(brand_obj)
+def get_brands(session):
+    brands = session.query(Brand)
     brands = brands.all()
 
     camera_brands = []
@@ -106,49 +108,44 @@ def get_brands(session, brand_obj):
     return camera_brands, laptop_brands
 
 
-def get_products(session, parameters, product_obj, brand_obj, order, offset, limit, brand_id=False):
+def get_products(session, parameters, order, offset, limit, brand_id=False):
     if not brand_id:
-        products = session.query(product_obj)
+        products = session.query(Product)
     else:
-        products = session.query(product_obj).filter_by(brand_id=brand_id)
-    products = check_search(products, parameters, product_obj)
+        products = session.query(Product).filter_by(brand_id=brand_id)
+    products = check_search(products, parameters, Product)
     total_count = products.count()
     products = products.order_by(order).offset(offset).limit(limit).all()
 
     for i in range(len(products)):
-        products[i] = process_data(products[i], session, brand_obj, False)
+        products[i] = process_data(products[i], session, Brand, False)
     return products, total_count
 
 
-def get_product(session, product_obj, brand_obj, product_id):
-    product = session.query(product_obj).filter_by(id=product_id).first()
-    return process_data(product, session, brand_obj, False)
+def get_product(session, product_id):
+    product = session.query(Product).filter_by(id=product_id).first()
+    return process_data(product, session, Brand, False)
+
+
+def get_carts_or_favorites(session, obj, user_id):
+    objs = session.query(obj).filter_by(user_id=user_id).all()
+    for i in range(len(objs)):
+        objs[i] = standardized_data(objs[i])
+        objs[i]['product'] = {}
+        product = session.query(Product).filter_by(id=objs[i]['product_id']).first()
+        objs[i]['product']['name'] = product.productName
+        objs[i]['product']['image'] = random.choice(product.images.split(','))
+        objs[i]['product']['price'] = product.price
+        del objs[i]['registry']
+    return objs
 
 
 def get_carts(session, user_id):
-    carts = session.query(Cart).filter_by(user_id=user_id).all()
-    for i in range(len(carts)):
-        carts[i] = standardized_data(carts[i])
-        carts[i]['product'] = {}
-        product = session.query(Product).filter_by(id=carts[i]['product_id']).first()
-        carts[i]['product']['name'] = product.productName
-        carts[i]['product']['image'] = random.choice(product.images.split(','))
-        carts[i]['product']['price'] = product.price
-        del carts[i]['registry']
-    return carts
+    return get_carts_or_favorites(session, Cart, user_id)
 
 
 def get_favorites(session, user_id):
-    favorites = session.query(Favorite).filter_by(user_id=user_id).all()
-    for i in range(len(favorites)):
-        favorites[i] = standardized_data(favorites[i])
-        favorites[i]['product'] = {}
-        product = session.query(Product).filter_by(id=favorites[i]['product_id']).first()
-        favorites[i]['product']['name'] = product.productName
-        favorites[i]['product']['image'] = random.choice(product.images.split(','))
-        favorites[i]['product']['price'] = product.price
-        del favorites[i]['registry']
-    return favorites
+    return get_carts_or_favorites(session, Favorite, user_id)
 
 
 def get_banks_of_user(session, user_id):
@@ -207,7 +204,8 @@ def get_payments(session, user_id):
     for i in range(len(payments)):
         payments[i] = standardized_data(payments[i])
         payments[i]['products'] = process_products(payments[i]['products'], session)
-        payments[i]['payment_type'] = session.query(PaymentType).filter_by(id=payments[i]['payment_type_id']).first().name
+        payments[i]['payment_type'] = session.query(PaymentType).filter_by(
+            id=payments[i]['payment_type_id']).first().name
         address = standardized_data(session.query(Address).filter_by(id=payments[i]['address_id']).first())
         del address['registry']
         payments[i]['address'] = address
@@ -220,7 +218,7 @@ def get_addresses(session, user_id):
     for i in range(len(addresses)):
         addresses[i] = standardized_data(addresses[i])
         del addresses[i]['registry']
-    return addresses 
+    return addresses
 
 
 def get_cameras_or_laptops(session, is_camera):
@@ -242,3 +240,15 @@ def get_payment_types(session):
         payment_types[i] = standardized_data(payment_types[i])
         del payment_types[i]['registry']
     return payment_types
+
+
+def get_visitors(session):
+    visitors = {}
+    for i in range(5):
+        visitors[str(date.today() - timedelta(days=i))] = session.query(VisitsLog).filter_by(
+            date=str(date.today() - timedelta(days=i))).all()
+    for key in visitors.keys():
+        for i in range(len(visitors[key])):
+            visitors[key][i] = standardized_data(visitors[key][i])
+            del visitors[key][i]['registry']
+    return visitors

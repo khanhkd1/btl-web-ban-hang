@@ -1,23 +1,30 @@
-from flask import Flask
+from flask import Flask, session, request
 from flask_restful import Api
 from libraries.connect_database import connect_database, User, Product, Brand, Cart, Payment, Bank, BankOfUser
+from libraries.visitor import track_visitor
 from flask_cors import CORS
-from modules.product.product_api import Home, ProductWithBrandId, Camera, Laptop, ProductWithProductId
+from datetime import timedelta
+from modules.product.product_api import Home, Camera, Laptop, ProductWithProductId
 from modules.user.user_api import UserAPI, SignIn, SignUp
 from modules.favorite.favorite_api import FavoriteUser, FavoriteUserProduct
 from modules.cart.cart_api import CartUser, CartUserProduct
 from modules.bank.bank_api import BankAPI, BankUserAPI
 from modules.address.address_api import AddressUserAPI
 from modules.payment.payment_api import PaymentAPI, PaymentTypeAPI
+from modules.visitor.visitor_api import VisitorAPI
 
-
-session = connect_database()
 
 app = Flask(__name__)
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
 
 cors = CORS(app)
 
 app.config['SECRET_KEY'] = 'khanhkd'
+
+
+@app.before_request
+def do_something_when_a_request_comes_in():
+    track_visitor(request)
 
 api = Api(app)
 
@@ -31,7 +38,7 @@ api.add_resource(Camera, '/product/camera', methods=['GET'])
 api.add_resource(Laptop, '/product/laptop', methods=['GET'])
 
 # api lấy thông tin sản phẩm theo product_id
-api.add_resource(ProductWithProductId, '/product/<int:product_id>', methods=['GET'])
+api.add_resource(ProductWithProductId, '/product/<int:product_id>', methods=['GET', 'PUT'])
 
 # api đăng nhập
 api.add_resource(SignIn, '/user/signin', methods=['POST'])
@@ -68,6 +75,9 @@ api.add_resource(PaymentTypeAPI, '/paymenttype', methods=['GET'])
 
 # api quản lý thanh toán
 api.add_resource(PaymentAPI, '/payment/<int:user_id>', methods=['GET', 'POST', 'DELETE'])
+
+
+api.add_resource(VisitorAPI, '/visitor', methods=['GET'])
 
 
 if __name__ == '__main__':

@@ -15,9 +15,9 @@ class Home(Resource):
 			parameters, Product.__table__.columns, Product
 		)
 		try:
-			products, total_count = get_products(session_tmp, parameters, Product, Brand, order, offset, limit)
+			products, total_count = get_products(session_tmp, parameters, order, offset, limit)
 
-			camera_brands, laptop_brands = get_brands(session_tmp, Brand)
+			camera_brands, laptop_brands = get_brands(session_tmp)
 
 			return make_response(
 				jsonify(
@@ -38,44 +38,6 @@ class Home(Resource):
 					{
 						"message": f"{e}",
 						"data": {}
-					}
-				), 500
-			)
-		finally:
-			session_tmp.close()
-
-
-class ProductWithBrandId(Resource):
-	def get(self, brand_id):
-		session_tmp = session()
-		parameters = request.args
-		limit, page, offset, order = get_default(
-			parameters, Product.__table__.columns, Product
-		)
-		try:
-			products, total_count = get_products(session_tmp, parameters, Product, Brand, order, offset, limit, brand_id)
-
-			camera_brands, laptop_brands = get_brands(session_tmp, Brand)
-
-			return make_response(
-				jsonify(
-					{
-						"message": "done",
-						"data": {
-							"products": get_data_with_page(products, limit, page, total_count),
-							"camera_brands": camera_brands,
-							"laptop_brands": laptop_brands
-						}
-					}
-				), 200
-			)
-		except exc as e:
-			session_tmp.rollback()
-			return make_response(
-				jsonify(
-					{
-						"message": f"{e}",
-						"data": []
 					}
 				), 500
 			)
@@ -84,29 +46,35 @@ class ProductWithBrandId(Resource):
 
 
 class ProductWithProductId(Resource):
+	def __init__(self):
+		self.session = session()
+
 	def get(self, product_id):
-		session_tmp = session()
-		try:
-			return make_response(
-				jsonify(
-					{
-						"message": "done",
-						"data": get_product(session_tmp, Product, Brand, product_id)
-					}
-				), 200
-			)
-		except exc as e:
-			session_tmp.rollback()
-			return make_response(
-				jsonify(
-					{
-						"message": f"{e}",
-						"data": {}
-					}
-				), 500
-			)
-		finally:
-			session_tmp.close()
+		product = get_product(self.session, product_id)
+		self.session.close()
+		return make_response(
+			jsonify(
+				{
+					"message": "done",
+					"data": product
+				}
+			), 200
+		)
+
+	def put(self, product_id):
+		data = request.get_json()
+		self.session.query(Product).filter_by(id=product_id).update(date)
+		self.session.commit()
+		product = get_product(self.session, product_id)
+		self.session.close()
+		return make_response(
+			jsonify(
+				{
+					"message": "done",
+					"data": product
+				}
+			), 200
+		)
 
 
 class Camera(Resource):

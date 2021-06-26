@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
-from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, ForeignKey, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, ForeignKey, DateTime, Date
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 def connect_database():
-	engine = create_engine('mysql://root:vjpvjp123A01@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=20, max_overflow=0)
+	engine = create_engine('mysql://root:vjpvjp123A01@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=10, max_overflow=20)
 	session = sessionmaker(bind=engine)
 	return session
 
@@ -21,6 +21,7 @@ class User(Base):
 	full_name = Column(String)
 	phone = Column(String(10))
 	email = Column(String)
+	gender = Column(String)
 
 	product = relationship('Product', secondary='cart')
 	bank = relationship('Bank', secondary='bank_of_user', back_populates='user')
@@ -32,6 +33,7 @@ class User(Base):
 		self.full_name = ''
 		self.phone = ''
 		self.email = ''
+		self.gender = 'Nam'
 
 	def set_password(self, password):
 		self.password = generate_password_hash(password)
@@ -122,3 +124,15 @@ class Payment(Base):
 	updated_at = Column(String)
 	admin_confirm = Column(Boolean)
 	status = Column(String)
+
+
+class VisitsLog(Base):
+	__tablename__ = 'visits_log'
+	id = Column(Integer, primary_key=True)
+	ip_address = Column(String)
+	requested_url = Column(String)
+	referer_page = Column(String)
+	page_name = Column(String)
+	query_string = Column(String)
+	user_agent = Column(String)
+	date = Column(String)
