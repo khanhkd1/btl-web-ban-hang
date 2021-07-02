@@ -12,6 +12,7 @@ from modules.bank.bank_api import BankAPI, BankUserAPI
 from modules.address.address_api import AddressUserAPI
 from modules.payment.payment_api import PaymentAPI, PaymentTypeAPI
 from modules.visitor.visitor_api import VisitorAPI
+from modules.ping.ping import Ping
 
 
 app = Flask(__name__)
@@ -27,6 +28,8 @@ def do_something_when_a_request_comes_in():
     track_visitor(request)
 
 api = Api(app)
+
+api.add_resource(Ping, '/', methods=['GET'])
 
 # api trang home
 api.add_resource(Home, '/home', methods=['GET'])
@@ -82,6 +85,6 @@ api.add_resource(VisitorAPI, '/visitor', methods=['GET'])
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', debug=True)
+        app.run(host='0.0.0.0', port=5050, debug=True)
     except Exception as exp:
         print(exp)
