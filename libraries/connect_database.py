@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 def connect_database():
-	engine = create_engine('mysql://root:vjpvjp123A01@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=10, max_overflow=20)
+	engine = create_engine('mysql://khanhkd:vjpvjp123A01@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=10, max_overflow=20)
 	session = sessionmaker(bind=engine)
 	return session
 
@@ -22,6 +22,7 @@ class User(Base):
 	phone = Column(String(10))
 	email = Column(String)
 	gender = Column(String)
+	date_of_birth = Column(String)
 
 	product = relationship('Product', secondary='cart')
 	bank = relationship('Bank', secondary='bank_of_user', back_populates='user')
@@ -34,6 +35,7 @@ class User(Base):
 		self.phone = ''
 		self.email = ''
 		self.gender = 'Nam'
+		self.date_of_birth = '01/01/1970'
 
 	def set_password(self, password):
 		self.password = generate_password_hash(password)

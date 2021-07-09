@@ -169,6 +169,7 @@ def get_user_by_id(session, user_id):
     user['favorites'] = get_favorites(session, user_id)
     user['banks'] = get_banks_of_user(session, user_id)
     user['addresses'] = get_addresses(session, user_id)
+    user['payments'] = get_payments(session, user_id)
     for field_name in ['bank', 'check_password', 'set_password', 'registry', 'product', 'password']:
         try:
             del user[field_name]
