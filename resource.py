@@ -4,13 +4,13 @@ from libraries.connect_database import connect_database, User, Product, Brand, C
 from libraries.visitor import track_visitor
 from flask_cors import CORS
 from datetime import timedelta
-from modules.product.product_api import Home, Camera, Laptop, ProductWithProductId
-from modules.user.user_api import UserAPI, SignIn, SignUp
+from modules.product.product_api import Home, Camera, Laptop, ProductWithProductId, ProductWithoutProductId
+from modules.user.user_api import UserAPI, SignIn, SignUp, AdminUserAll, AdminUser
 from modules.favorite.favorite_api import FavoriteUser, FavoriteUserProduct
 from modules.cart.cart_api import CartUser, CartUserProduct
 from modules.bank.bank_api import BankAPI, BankUserAPI
 from modules.address.address_api import AddressUserAPI
-from modules.payment.payment_api import PaymentAPI, PaymentTypeAPI
+from modules.payment.payment_api import PaymentAPI, PaymentTypeAPI, AdminPaymentAll, AdminPayment
 from modules.visitor.visitor_api import VisitorAPI
 from modules.ping.ping import Ping
 
@@ -79,8 +79,13 @@ api.add_resource(PaymentTypeAPI, '/paymenttype', methods=['GET'])
 # api quản lý thanh toán
 api.add_resource(PaymentAPI, '/payment/<int:user_id>', methods=['GET', 'POST', 'DELETE'])
 
-
+# các api của admin
 api.add_resource(VisitorAPI, '/visitor', methods=['GET'])
+api.add_resource(AdminUserAll, '/alluser', methods=['GET'])
+api.add_resource(AdminUser, '/manageuser/<int:user_id>', methods=['PUT', 'DELETE'])
+api.add_resource(AdminPaymentAll, '/allpayment', methods=['GET'])
+api.add_resource(AdminPayment, '/managepayment/<int:payment_id>', methods=['PUT'])
+api.add_resource(ProductWithoutProductId, '/product', methods=['POST'])
 
 
 if __name__ == '__main__':

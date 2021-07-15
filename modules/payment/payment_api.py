@@ -1,5 +1,5 @@
 from libraries.connect_database import connect_database, Product, Cart, Bank, BankOfUser, User, Payment
-from libraries.libraries import get_carts, get_banks_of_user, get_banks, get_payments, get_payment_types
+from libraries.libraries import get_carts, get_banks_of_user, get_banks, get_payments, get_payment_types, get_all_payments
 from flask_restful import Resource
 from flask import request, jsonify, make_response
 from sqlalchemy import exc
@@ -20,6 +20,49 @@ class PaymentTypeAPI(Resource):
 				{
 					"message": "done",
 					"data": payment_types
+				}
+			), 200
+		)
+
+
+class AdminPaymentAll(Resource):
+	def __init__(self):
+		self.session = session()
+
+	def get(self):
+		payments = get_all_payments(self.session)
+		self.session.close()
+		return make_response(
+			jsonify(
+				{
+					"message": "done",
+					"payments": payments
+				}
+			), 200
+		)
+
+
+class AdminPayment(Resource):
+	def __init__(self):
+		self.session = session()
+
+	def put(self, payment_id):
+		data = request.get_json()
+		self.session.query(Payment).filter_by(id=payment_id).update(
+			{
+				"status": data['status'],
+				'admin_confirm': True,
+				"updated_at": str(datetime.datetime.now())
+			}
+		)
+		self.session.commit()
+		payments = get_all_payments(self.session)
+		self.session.close()
+		return make_response(
+			jsonify(
+				{
+					"message": "done",
+					"payments": payments
 				}
 			), 200
 		)

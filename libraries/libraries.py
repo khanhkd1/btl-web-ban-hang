@@ -245,11 +245,56 @@ def get_payment_types(session):
 
 def get_visitors(session):
     visitors = {}
-    for i in range(5):
+    for i in range(7):
         visitors[str(date.today() - timedelta(days=i))] = session.query(VisitsLog).filter_by(
-            date=str(date.today() - timedelta(days=i))).all()
-    for key in visitors.keys():
-        for i in range(len(visitors[key])):
-            visitors[key][i] = standardized_data(visitors[key][i])
-            del visitors[key][i]['registry']
+            date=str(date.today() - timedelta(days=i))).count()
     return visitors
+
+def get_all_user(session):
+    users = session.query(User).all()
+    for i in range(len(users)):
+        users[i] = standardized_data(users[i])
+        del users[i]['bank'], users[i]['check_password'], users[i]['product'], users[i]['registry'], users[i]['set_password']
+    return users
+
+def delete_user(session, user_id):
+    addresses = get_addresses(session, user_id)
+    for i in range(len(addresses)):
+        session.query(Address).filter_by(id=addresses[i]['id']).delete()
+        session.commit()
+
+    carts = get_carts(session, user_id)
+    for i in range(len(carts)):
+        session.query(Cart).filter_by(id=carts[i]['id']).delete()
+        session.commit()
+    
+    favorites = get_favorites(session, user_id)
+    for i in range(len(favorites)):
+        session.query(Favorite).filter_by(id=favorites[i]['id']).delete()
+        session.commit()
+
+    banks_of_user = get_banks_of_user(session, user_id)
+    for i in range(len(banks_of_user)):
+        session.query(BankOfUser).filter_by(id=banks_of_user[i]['id']).delete()
+        session.commit()
+
+    payments = get_payments(session, user_id)
+    for i in range(len(payments)):
+        session.query(Payment).filter_by(id=payments[i]['id']).delete()
+        session.commit()
+
+    session.query(User).filter_by(id=user_id).delete()
+    session.commit()
+
+def get_all_payments(session):
+    payments = session.query(Payment).all()
+    for i in range(len(payments)):
+        payments[i] = standardized_data(payments[i])
+        payments[i]['products'] = process_products(payments[i]['products'], session)
+        payments[i]['payment_type'] = session.query(PaymentType).filter_by(
+            id=payments[i]['payment_type_id']).first().name
+        address = standardized_data(session.query(Address).filter_by(id=payments[i]['address_id']).first())
+        del address['registry']
+        payments[i]['address'] = address
+        del payments[i]['registry']
+    return payments

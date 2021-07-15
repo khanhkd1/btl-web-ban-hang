@@ -1,7 +1,7 @@
 from libraries.connect_database import connect_database, User
 from flask_restful import Resource
 from flask import request, jsonify, make_response
-from libraries.libraries import get_user_by_id
+from libraries.libraries import get_user_by_id, get_all_user, delete_user
 from werkzeug.security import generate_password_hash
 
 session = connect_database()
@@ -61,6 +61,57 @@ class SignUp(Resource):
         )
 
 
+class AdminUserAll(Resource):
+    def __init__(self):
+        self.session = session()
+
+    def get(self):
+        users = get_all_user(self.session)
+        self.session.close()
+        return make_response(
+            jsonify(
+                {
+                    "message": "done",
+                    "users": users
+                }
+            ), 200
+        )
+
+
+
+class AdminUser(Resource):
+    def __init__(self):
+        self.session = session()
+
+    def put(self, user_id):
+        self.session.query(User).filter_by(id=user_id).update(
+            {
+                'password': generate_password_hash('abc12345')
+            }
+        )
+        self.session.commit()
+        self.session.close()
+        return make_response(
+            jsonify(
+                {
+                    "message": "done"
+                }
+            ), 200
+        )
+
+    def delete(self, user_id):
+        delete_user(self.session, user_id)
+        self.session.close()
+        return make_response(
+            jsonify(
+                {
+                    "message": "done"
+                }
+            ), 200
+        )
+
+
+
 class UserAPI(Resource):
     def __init__(self):
         self.session = session()
@@ -115,8 +166,7 @@ class UserAPI(Resource):
         data = request.get_json()
         user = self.session.query(User).filter_by(id=user_id).first()
         if user.check_password(data['password']):
-            self.session.query(User).filter_by(id=user_id).delete()
-            self.session.commit()
+            delete_user(self.session, user_id)
             message = 'done'
             code = 200
         else:
