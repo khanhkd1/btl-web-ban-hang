@@ -246,8 +246,11 @@ def get_payment_types(session):
 def get_visitors(session):
     visitors = {}
     for i in range(7):
-        visitors[str(date.today() - timedelta(days=i))] = session.query(VisitsLog).filter_by(
-            date=str(date.today() - timedelta(days=i))).count()
+        try:
+            visitors[str(date.today() - timedelta(days=i))] = session.query(VisitsLog).filter_by(
+                date=str(date.today() - timedelta(days=i))).count()
+        except:
+            visitors[str(date.today() - timedelta(days=i))] = 0
     return visitors
 
 def get_all_user(session):

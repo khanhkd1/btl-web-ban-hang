@@ -41,7 +41,7 @@ api.add_resource(Camera, '/product/camera', methods=['GET'])
 api.add_resource(Laptop, '/product/laptop', methods=['GET'])
 
 # api lấy thông tin sản phẩm theo product_id
-api.add_resource(ProductWithProductId, '/product/<int:product_id>', methods=['GET', 'PUT'])
+api.add_resource(ProductWithProductId, '/product/<int:product_id>', methods=['GET', 'PUT', 'DELETE'])
 
 # api đăng nhập
 api.add_resource(SignIn, '/user/signin', methods=['POST'])

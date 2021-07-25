@@ -65,44 +65,68 @@ class ProductWithProductId(Resource):
 
 	def put(self, product_id):
 		data = request.get_json()
-		self.session.query(Product).filter_by(id=product_id).update(date)
+		try:
+			self.session.query(Product).filter_by(id=product_id).update(data)
+			self.session.commit()
+			product = get_product(self.session, product_id)
+			return make_response(
+				jsonify(
+					{
+						"message": "done",
+						"data": product
+					}
+				), 200
+			)
+		except:
+			self.session.rollback()
+			product = get_product(self.session, product_id)
+			return make_response(
+				jsonify(
+					{
+						"message": "fail",
+						"data": product
+					}
+				), 200
+			)
+		finally:
+			self.session.close()
+
+	def delete(self, product_id):
+		self.session.query(Product).filter_by(id=product_id).delete()
 		self.session.commit()
-		product = get_product(self.session, product_id)
 		self.session.close()
 		return make_response(
 			jsonify(
 				{
 					"message": "done",
-					"data": product
 				}
 			), 200
 		)
-
 
 class ProductWithoutProductId(Resource):
 	def __init__(self):
 		self.session = session()
 
 	def post(self):
-		img_1 = requests.post(
-			'https://api.imgur.com/3/upload',
-			headers={'Authorization': 'Bearer ' + 'a87898db9b7f3ef7b996ee0008773554a2fa3fa6',},
-			data={
-				'image': b64encode(request.files['img_1'].read()),
-				'type': 'base64'
-			}
-		).json()['data']['link']
-
-		img_2 = requests.post(
-			'https://api.imgur.com/3/upload',
-			headers={'Authorization': 'Bearer ' + 'a87898db9b7f3ef7b996ee0008773554a2fa3fa6',},
-			data={
-				'image': b64encode(request.files['img_2'].read()),
-				'type': 'base64'
-			}
-		).json()['data']['link']
-
 		try:
+			img_1 = requests.post(
+				'https://api.imgur.com/3/upload',
+				headers={'Authorization': 'Bearer ' + 'a87898db9b7f3ef7b996ee0008773554a2fa3fa6',},
+				data={
+					'image': b64encode(request.files['img_1'].read()),
+					'type': 'base64'
+				}
+			).json()['data']['link']
+
+			img_2 = requests.post(
+				'https://api.imgur.com/3/upload',
+				headers={'Authorization': 'Bearer ' + 'a87898db9b7f3ef7b996ee0008773554a2fa3fa6',},
+				data={
+					'image': b64encode(request.files['img_2'].read()),
+					'type': 'base64'
+				}
+			).json()['data']['link']
+
 			product = Product(
 				brand_id=int(request.form['brand_id']),
 				productName=request.form['productName'],
@@ -136,7 +160,6 @@ class ProductWithoutProductId(Resource):
 			)
 		finally:
 			self.session.close()
-
 
 
 class Camera(Resource):
