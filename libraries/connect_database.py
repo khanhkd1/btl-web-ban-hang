@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 def connect_database():
-	engine = create_engine('mysql://khanhkd:vjpvjp123A01@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=10, max_overflow=20)
+	engine = create_engine('mysql://khanhkd:pass@localhost/btl-web-ban-hang?charset=utf8mb4', pool_size=10, max_overflow=20)
 	session = sessionmaker(bind=engine)
 	return session
 
